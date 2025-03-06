@@ -7,43 +7,42 @@ import { MoonIcon, SunIcon } from '@heroicons/react/24/solid';
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode') === 'true';
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialMode = savedMode ?? systemDark;
-    setDarkMode(initialMode);
-    document.documentElement.classList.toggle('dark', initialMode);
+    const savedTheme = localStorage.getItem('theme');
+    setIsDarkMode(savedTheme === 'dark');
   }, []);
 
   const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode);
-    document.documentElement.classList.toggle('dark', newMode);
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark', !isDarkMode);
+    localStorage.setItem('theme', newTheme);
   };
 
   return (
-    <header className="bg-gradient-to-r from-blue-700 to-blue-600 dark:from-gray-900 dark:to-gray-800 shadow-lg">
+    <header className="bg-gradient-to-r from-blue-700 to-blue-600 shadow-lg dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 hover:scale-105 transition-transform">
             <span className="text-2xl font-bold text-yellow-400">🎫</span>
             <span className="text-xl font-semibold text-white dark:text-yellow-300">
               Ticketing System
             </span>
           </Link>
           
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center gap-6">
             <nav>
-              <ul className="flex space-x-4">
+              <ul className="flex gap-4 items-center">
                 {user ? (
                   <>
                     <li>
                       <Link
                         href={user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user'}
-                        className="px-3 py-2 rounded-md text-sm font-medium text-white dark:text-yellow-300 hover:bg-blue-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg 
+                        hover:bg-orange-500/10 transition-all duration-300 
+                        dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400/10"
                       >
                         Dashboard
                       </Link>
@@ -51,7 +50,9 @@ const Header = () => {
                     <li>
                       <button
                         onClick={logout}
-                        className="px-3 py-2 rounded-md text-sm font-medium text-white dark:text-yellow-300 hover:bg-blue-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg 
+                        hover:bg-orange-500/10 transition-all duration-300 
+                        dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400/10"
                       >
                         Logout
                       </button>
@@ -62,7 +63,9 @@ const Header = () => {
                     <li>
                       <Link
                         href="/login"
-                        className="px-3 py-2 rounded-md text-sm font-medium text-white dark:text-yellow-300 hover:bg-blue-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg 
+                        hover:bg-orange-500/10 transition-all duration-300 
+                        dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400/10"
                       >
                         Login
                       </Link>
@@ -70,7 +73,9 @@ const Header = () => {
                     <li>
                       <Link
                         href="/signup"
-                        className="px-3 py-2 rounded-md text-sm font-medium text-white dark:text-yellow-300 hover:bg-blue-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg 
+                        hover:bg-orange-500/10 transition-all duration-300 
+                        dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400/10"
                       >
                         Signup
                       </Link>
@@ -82,13 +87,14 @@ const Header = () => {
 
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 dark:hover:bg-gray-600/70 transition-colors duration-300"
-              aria-label="Toggle dark mode"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors 
+              duration-300 dark:bg-gray-700/50 dark:hover:bg-gray-600/70"
+              aria-label="Toggle theme"
             >
-              {darkMode ? (
-                <MoonIcon className="h-6 w-6 text-yellow-400" />
+              {isDarkMode ? (
+                <SunIcon className="h-6 w-6 text-yellow-400 dark:text-orange-400" />
               ) : (
-                <SunIcon className="h-6 w-6 text-yellow-400" />
+                <MoonIcon className="h-6 w-6 text-yellow-400 dark:text-orange-400" />
               )}
             </button>
           </div>

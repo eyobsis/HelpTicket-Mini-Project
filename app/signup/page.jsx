@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import Spinner from '@/components/Spinner';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -21,171 +23,156 @@ export default function Signup() {
 
   useEffect(() => {
     if (user && !loading) {
-      if (user.role === 'admin') {
-        router.push('/dashboard/admin');
-      } else {
-        router.push('/dashboard/user');
-      }
+      router.push(user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user');
     }
   }, [user, loading, router]);
 
   const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError('');
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!name || !email || !password) {
-      setError('Please fill in all fields');
-      return;
+    if (!name || !email || !password || !confirmPassword) {
+      return setError('Please fill in all fields');
     }
+    if (password !== confirmPassword) return setError('Passwords do not match');
     
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    
-    const result = await register({
-      name,
-      email,
-      password,
-      role,
-    });
-    
-    if (!result.success) {
-      setError(result.message || 'Registration failed');
-    }
+    const result = await register({ name, email, password, role });
+    if (!result.success) setError(result.message || 'Registration failed');
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <Spinner className="h-12 w-12 text-orange-500 dark:text-orange-400" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
-      
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
-          {error}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-light dark:bg-gradient-dark p-4">
+      <div className="gradient-border max-w-md w-full">
+        <div className="gradient-border-inner">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-yellow-300">
+            Create Account
+          </h1>
+
+          {error && (
+            <div className="mb-6 p-3 bg-red-100/80 dark:bg-red-900/30 rounded-lg flex items-center gap-2 text-red-600 dark:text-red-300">
+              <ExclamationTriangleIcon className="h-5 w-5" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-2 dark:text-gray-300">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={name}
+                onChange={onChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                  bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-orange-500 
+                  focus:border-orange-500 dark:focus:ring-orange-400 transition-all"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-2 dark:text-gray-300">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={onChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                  bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-orange-500 
+                  focus:border-orange-500 dark:focus:ring-orange-400 transition-all"
+                placeholder="name@company.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium mb-2 dark:text-gray-300">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={onChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                  bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-orange-500 
+                  focus:border-orange-500 dark:focus:ring-orange-400 transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2 dark:text-gray-300">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={onChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                  bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-orange-500 
+                  focus:border-orange-500 dark:focus:ring-orange-400 transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium mb-2 dark:text-gray-300">
+                Account Type
+              </label>
+              <select
+                id="role"
+                name="role"
+                value={role}
+                onChange={onChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                  bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-orange-500 
+                  focus:border-orange-500 dark:focus:ring-orange-400 transition-all"
+              >
+                <option value="user">Standard User</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="primary-button w-full py-3"
+            >
+              Create Account
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{' '}
+              <Link 
+                href="/login" 
+                className="text-orange-500 dark:text-orange-400 hover:underline font-semibold"
+              >
+                Sign in here
+              </Link>
+            </p>
+          </div>
         </div>
-      )}
-      
-      <form onSubmit={onSubmit}>
-        <div className="mb-4">
-          <label 
-            htmlFor="name" 
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={name}
-            onChange={onChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your name"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label 
-            htmlFor="email" 
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={onChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your email"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label 
-            htmlFor="password" 
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your password"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label 
-            htmlFor="confirmPassword" 
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={onChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Confirm your password"
-          />
-        </div>
-        
-        <div className="mb-6">
-          <label 
-            htmlFor="role" 
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Role
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={role}
-            onChange={onChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        
-        <button
-          type="submit"
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Sign Up
-        </button>
-      </form>
-      
-      <div className="mt-4 text-center">
-        <p>
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </p>
       </div>
     </div>
   );
